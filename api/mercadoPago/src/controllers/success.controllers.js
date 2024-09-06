@@ -21,7 +21,13 @@ export const successEvent = async (req, res) => {
             };
 
             const paymentDetails = await fetchPaymentDetails(req.query.payment_id);
-            const products = paymentDetails.body.additional_info.items;
+            const products = paymentDetails.body.additional_info.items.map(
+                (item) => ({
+                    title: item.title,
+                    unit_price: item.unit_price,
+                    quantity: item.quantity,
+                })
+            );
             const totalPay = paymentDetails.body.transaction_amount;
             const clientEmail = paymentDetails.body.payer.email;
 

@@ -16,8 +16,9 @@ export const createOrder = async (req, res) => {
       items: cartList.map((product) => ({
         title: product.name,
         currency_id: "ARS",
+        description: product.description,
         unit_price: product.price,
-        quantity: 1,
+        quantity: product.quantity,
       })),
       back_urls: {
         success: `https://chiniapp-api-production.up.railway.app/success`,
@@ -29,7 +30,7 @@ export const createOrder = async (req, res) => {
         pending: "/pending",
         success: `https://chiniapp-api-production.up.railway.app/success`,
       },
-      notification_url: "https://fcb6-190-194-144-75.ngrok-free.app/webhook",
+      notification_url: `${process.env.NGROK_URL}/webhook`,
       auto_return: "approved",
     });
 
