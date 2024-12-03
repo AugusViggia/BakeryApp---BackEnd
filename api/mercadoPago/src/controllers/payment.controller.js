@@ -33,7 +33,7 @@ export const createOrder = async (req, res) => {
       redirect_urls: {
         failure: "/feilure",
         pending: "/pending",
-        success: `https://bakeryapp-frontend-production.up.railway.app/`,
+        success: `https://bakeryapp-frontend-production.up.railway.app`,
       },
       notification_url: `${process.env.NGROK_URL}/webhook`,
       auto_return: "approved",
