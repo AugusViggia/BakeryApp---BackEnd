@@ -7,15 +7,13 @@ export const sendEmail = async ({ products, totalPay, clientEmail }) => {
 
     const email = {
       from: "augustoempresaprueba@gmail.com",
-      to: [clientEmail, "augusto.viggiano@gmail.com"]
-        .filter(Boolean)
-        .join(", "),
+      to: [clientEmail, "viggianoa179@gmail.com"].filter(Boolean).join(", "),
       subject: "Confirmación de compra en BakeryApp",
       html: emailHtml,
     };
 
     await transporter.sendMail(email);
-    
+
   } catch (error) {
     throw console.log(error);
   }
