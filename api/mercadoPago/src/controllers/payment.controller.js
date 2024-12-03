@@ -6,7 +6,7 @@ export const createOrder = async (req, res) => {
   const { cartList } = req.body;
 
   console.log(req.body);
-  
+
 
   try {
     mercadopago.configure({
@@ -15,7 +15,7 @@ export const createOrder = async (req, res) => {
       access_token:
         process.env.ACCESS_TOKEN,
     });
-    
+
     const items = cartList.map((product) => ({
       title: product.name,
       currency_id: "ARS",
@@ -33,7 +33,7 @@ export const createOrder = async (req, res) => {
       redirect_urls: {
         failure: "/feilure",
         pending: "/pending",
-        success: `https://bakeryapp-frontend-production.up.railway.app/success`,
+        success: `https://bakeryapp-frontend-production.up.railway.app/`,
       },
       notification_url: `${process.env.NGROK_URL}/webhook`,
       auto_return: "approved",
