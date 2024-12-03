@@ -1,40 +1,47 @@
 import mercadopago from "mercadopago";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const createOrder = async (req, res) => {
   const { cartList } = req.body;
 
+  console.log(req.body);
+  
+
   try {
     mercadopago.configure({
-      client_id: "1418850663386812",
-      client_secret: "91ogiySmYydTwhyIJhnLvrjf0bgziBnk",
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
       access_token:
-        "APP_USR-1418850663386812-112014-e79ec7ac67d75fb39e6c57e5d7795955-174088517",
+        process.env.ACCESS_TOKEN,
     });
-  
-    const result = await mercadopago.preferences.create({
-      // reason: product.name, con esta propiedad modificas el ticket para ponerle los nombres del producto.
-      items: cartList.map((product) => ({
-        title: product.name,
-        currency_id: "ARS",
-        description: product.description,
-        unit_price: product.price,
-        quantity: product.quantity,
-      })),
+    
+    const items = cartList.map((product) => ({
+      title: product.name,
+      currency_id: "ARS",
+      unit_price: product.price,
+      quantity: product.quantity,
+    }));
+
+    const preference = {
+      items,
       back_urls: {
-        success: `https://chiniapp-api-production.up.railway.app/success`,
-        failure: `https://chiniapp-api-production.up.railway.app/failure`,
-        pending: `https://chiniapp-api-production.up.railway.app/pending`,
+        success: `https://bakeryapp-frontend-production.up.railway.app/success`,
+        failure: `https://bakeryapp-frontend-production.up.railway.app/failure`,
+        pending: `https://bakeryapp-frontend-production.up.railway.app/pending`,
       },
       redirect_urls: {
         failure: "/feilure",
         pending: "/pending",
-        success: `https://chiniapp-api-production.up.railway.app/success`,
+        success: `https://bakeryapp-frontend-production.up.railway.app/success`,
       },
       notification_url: `${process.env.NGROK_URL}/webhook`,
       auto_return: "approved",
-    });
+    };
 
-    res.send(result.body);
+    const result = await mercadopago.preferences.create(preference);
+
+    res.status(200).json(result.body);
   } catch (error) {
       console.error("Error:", error);
       res.status(500).send("Internal Server Error");

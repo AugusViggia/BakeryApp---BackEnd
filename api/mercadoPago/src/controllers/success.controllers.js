@@ -4,39 +4,54 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const successEvent = async (req, res) => {
-    const return_Url = "https://chiniapp-front-production.up.railway.app/";
+    const return_Url = "https://bakeryapp-frontend-production.up.railway.app/";
 
     try {
-        if (req.query && req.query.status === "approved") {
-            const fetchPaymentDetails = async (paymentId) => {
-                try {
-                    const payment = await mercadopago.payment.findById(paymentId);
-                    console.log("Soy el payment: ", payment);
+      if (
+        req.query &&
+        req.query.status === "approved" &&
+        req.query.payment_id
+      ) {
+        const paymentId = req.query.payment_id;
 
-                    return payment;
-                } catch (error) {
-                    console.error("Error al obtener detalles de pago:", error.message);
-                    throw error;
-                }
-            };
+        // Función para obtener detalles del pago
+        const fetchPaymentDetails = async (paymentId) => {
+          try {
+            const payment = await mercadopago.payment.findById(paymentId);
+            return payment;
+          } catch (error) {
+            console.error("Error al obtener detalles de pago:", error.message);
+            throw new Error("No se pudieron obtener los detalles del pago.");
+          }
+        };
 
-            const paymentDetails = await fetchPaymentDetails(req.query.payment_id);
-            const products = paymentDetails.body.additional_info.items.map(
-                (item) => ({
-                    title: item.title,
-                    unit_price: item.unit_price,
-                    quantity: item.quantity,
-                })
-            );
-            const totalPay = paymentDetails.body.transaction_amount;
-            const clientEmail = paymentDetails.body.payer.email;
+        const paymentDetails = await fetchPaymentDetails(paymentId);
 
-            await sendEmail({ products, totalPay, clientEmail });
+        // Verifica si se recibieron los detalles correctamente
+        if (!paymentDetails || !paymentDetails.body) {
+          throw new Error("Detalles de pago no disponibles.");
         }
 
-        res.redirect(return_Url);
+        const products = paymentDetails.body.additional_info.items.map(
+          (item) => ({
+            title: item.title,
+            unit_price: item.unit_price,
+            quantity: item.quantity,
+          })
+        );
+
+        const totalPay = paymentDetails.body.transaction_amount;
+        const clientEmail = paymentDetails.body.payer.email;
+
+        // Enviar correo con los detalles
+        await sendEmail({ products, totalPay, clientEmail });
+
+        console.log("Correo enviado exitosamente");
+      }
+
+      res.redirect(return_Url);
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).send("Internal Server Error");
+      console.error("Error en successEvent:", error.message);
+      res.status(500).send("Error interno del servidor.");
     }
 };
